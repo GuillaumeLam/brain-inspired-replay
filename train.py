@@ -5,6 +5,7 @@ import tqdm
 import copy
 import utils
 from models.cl.continual_learner import ContinualLearner
+from data.manipulate import SubDataset, ExemplarDataset
 
 
 def train(model, train_loader, iters, loss_cbs=list(), eval_cbs=list(), save_every=None, m_dir="./store/models",
@@ -65,7 +66,7 @@ def train_cl(model, train_datasets, replay_mode="none", scenario="task", rnt=Non
 
     [model]             <nn.Module> main model to optimize across all tasks
     [train_datasets]    <list> with for each task the training <DataSet>
-    [replay_mode]       <str>, choice from "generative", "current", "offline" and "none"
+    [replay_mode]       <str>, choice from "generative", "current", "offline", "exemplars" and "none"
     [scenario]          <str>, choice from "task", "domain", "class" and "all"
     [classes_per_task]  <int>, # classes per task; only 1st task has [classes_per_task]*[first_task_class_boost] classes
     [rnt]               <float>, indicating relative importance of new task (if None, relative to # old tasks)
@@ -87,7 +88,8 @@ def train_cl(model, train_datasets, replay_mode="none", scenario="task", rnt=Non
     batch_size_replay = batch_size if batch_size_replay is None else batch_size_replay
 
     # Initiate indicators for replay (no replay for 1st task)
-    Generative = Current = Offline_TaskIL = False
+    # if Exact is true, use exemplars for replay
+    Exact = Generative = Current = Offline_TaskIL = False
     previous_model = None
 
     # Register starting param-values (needed for "intelligent synapses").
@@ -110,6 +112,16 @@ def train_cl(model, train_datasets, replay_mode="none", scenario="task", rnt=Non
 
         # Initialize # iters left on data-loader(s)
         iters_left = 1 if (not Offline_TaskIL) else [1]*task
+
+        # For ER (added)
+        if replay_mode=="exemplars":
+            #TODO: decide if keep I this line I added for ER...
+            training_dataset = train_dataset
+            iters_left_previous = iters_left
+            if scenario=="task":
+                up_to_task = task if replay_mode=="offline" else task-1
+                iters_left_previous = [1]*up_to_task
+                data_loader_previous = [None]*up_to_task
 
         # Prepare <dicts> to store running importance estimates and parameter-values before update
         if isinstance(model, ContinualLearner) and model.si_c>0:
@@ -168,6 +180,27 @@ def train_cl(model, train_datasets, replay_mode="none", scenario="task", rnt=Non
                         ))
                         iters_left[task_id] = len(data_loader[task_id])
 
+            if Exact:
+                if scenario=="task":
+                    up_to_task = task if replay_mode=="offline" else task-1
+                    # modified: here, batch_size_replay can differ from current task's batch size
+                    batch_size_ER = int(np.ceil(batch_size_replay/up_to_task)) if (up_to_task>1) else batch_size_replay
+                    # -in Task-IL scenario, need separate replay for each task
+                    for task_id in range(up_to_task):
+                        batch_size_to_use_ER = min(batch_size_ER, len(previous_datasets[task_id]))
+                        iters_left_previous[task_id] -= 1
+                        if iters_left_previous[task_id]==0:
+                            data_loader_previous[task_id] = iter(utils.get_data_loader(
+                                train_datasets[task_id], batch_size_to_use_ER, cuda=cuda, drop_last=True
+                            ))
+                            iters_left_previous[task_id] = len(data_loader_previous[task_id])
+                else:
+                    iters_left_previous -= 1
+                    if iters_left_previous==0:
+                        batch_size_to_use_ER = min(batch_size_replay, len(ConcatDataset(previous_datasets)))
+                        data_loader_previous = iter(utils.get_data_loader(ConcatDataset(previous_datasets),
+                                                                          batch_size_to_use_ER, cuda=cuda, drop_last=True))
+                        iters_left_previous = len(data_loader_previous)
 
 
             #-----------------Collect data------------------#
@@ -178,6 +211,7 @@ def train_cl(model, train_datasets, replay_mode="none", scenario="task", rnt=Non
                 y = y-classes_per_task*(task-1) if scenario=="task" else y  #--> ITL: adjust y-targets to 'active range'
                 x, y = x.to(device), y.to(device)                           #--> transfer them to correct device
                 #y = y.expand(1) if len(y.size())==1 else y                 #--> hack for if batch-size is 1
+                scores = None # needed?
             else:
                 x = y = task_used = None  #--> all tasks are "treated as replay"
                 # -sample training data for all tasks so far, move to correct device and store in lists
@@ -192,7 +226,7 @@ def train_cl(model, train_datasets, replay_mode="none", scenario="task", rnt=Non
 
 
             #####-----REPLAYED BATCH-----#####
-            if not Offline_TaskIL and not Generative and not Current:
+            if not Offline_TaskIL and not Exact and not Generative and not Current:
                 x_ = y_ = scores_ = task_used = None   #-> if no replay
 
             #--------------------------------------------INPUTS----------------------------------------------------#
@@ -202,6 +236,26 @@ def train_cl(model, train_datasets, replay_mode="none", scenario="task", rnt=Non
                 x_ = x[:batch_size_replay]  #--> use current task inputs
                 task_used = None
 
+            ##-->> Exact Replay <<--##
+            if Exact:
+                scores_ = None
+                if scenario in ("domain", "class"):
+                    # Sample replayed training data, move to correct device
+                    # Note: I removed the option to use soft targets for ER (not implementing here, could be implemented here)
+                    x_, y_ = next(data_loader_previous)
+                    x_ = x_.to(device)
+                    y_ = y_.to(device)
+                elif scenario=="task":
+                    # Sample replayed training data, wrap in (cuda-)Variables and store in lists
+                    x_ = list()
+                    y_ = list()
+                    up_to_task = task if replay_mode=="offline" else task-1
+                    for task_id in range(up_to_task):
+                        x_temp, y_temp = next(data_loader_previous[task_id])
+                        x_.append(x_temp.to(device))
+                        # -only keep [y_] if required (as otherwise unnecessary computations will be done)
+                        y_temp = y_temp - (classes_per_task*task_id) #-> adjust y-targets to 'active range'
+                        y_.append(y_temp.to(device))
 
             ##-->> Generative Replay <<--##
             if Generative:
@@ -377,10 +431,40 @@ def train_cl(model, train_datasets, replay_mode="none", scenario="task", rnt=Non
         if isinstance(model, ContinualLearner) and model.si_c>0:
             model.update_omega(W, model.epsilon)
 
+        # EXEMPLARS: update exemplar sets
+        if replay_mode=="exemplars":
+            exemplars_per_class = int(np.floor(model.memory_budget / (classes_per_task*task)))
+            # reduce examplar-sets
+            model.reduce_exemplar_sets(exemplars_per_class)
+            # for each new class trained on, construct examplar-set
+            new_classes = list(range(classes_per_task)) if scenario=="domain" else list(range(classes_per_task*(task-1),
+                                                                                              classes_per_task*task))
+            for class_id in new_classes:
+                # create new dataset containing only all examples of this class
+                class_dataset = SubDataset(original_dataset=train_dataset, sub_labels=[class_id])
+                # based on this dataset, construct new exemplar-set for this class
+                model.construct_exemplar_set(dataset=class_dataset, n=exemplars_per_class)
+            model.compute_means = True
+
         # REPLAY: update source for replay
         previous_model = copy.deepcopy(model).eval()
         if replay_mode=="generative":
             Generative = True
             previous_generator = previous_model if feedback else copy.deepcopy(generator).eval()
-        elif replay_mode=='current':
+        elif replay_mode=="current":
             Current = True
+        elif replay_mode=="exemplars":
+            Exact = True
+            if scenario == "task":
+                previous_datasets = []
+                for task_id in range(task):
+                    previous_datasets.append(
+                        ExemplarDataset(
+                            model.exemplar_sets[
+                            (classes_per_task * task_id):(classes_per_task * (task_id + 1))],
+                            target_transform=lambda y, x=classes_per_task * task_id: y + x)
+                    )
+            else:
+                target_transform = (lambda y, x=classes_per_task: y % x) if scenario == "domain" else None
+                previous_datasets = [
+                    ExemplarDataset(model.exemplar_sets, target_transform=target_transform)]

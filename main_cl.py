@@ -33,6 +33,7 @@ def handle_inputs():
     parser = options.add_model_options(parser, **kwargs)
     parser = options.add_train_options(parser, **kwargs)
     parser = options.add_replay_options(parser, **kwargs)
+    parser = options.add_episodic_replay_options(parser, **kwargs)
     parser = options.add_bir_options(parser, **kwargs)
     parser = options.add_allocation_options(parser, **kwargs)
     # Parse, process (i.e., set defaults for unselected options) and check chosen options
@@ -124,6 +125,16 @@ def run(args, verbose=False):
 
     #-------------------------------------------------------------------------------------------------#
 
+    #----------------------------------#
+    #----- CL-STRATEGY: EXEMPLARS -----#
+    #----------------------------------#
+
+    if isinstance(model, ExemplarHandler) and (args.replay=="exemplars"):
+        model.memory_budget = args.budget
+        model.norm_exemplars = args.norm_exemplars
+        if args.sampling=="herding":
+            model.herding = True
+
     #----------------------------------------------------#
     #----- CL-STRATEGY: REGULARIZATION / ALLOCATION -----#
     #----------------------------------------------------#
@@ -155,6 +166,7 @@ def run(args, verbose=False):
     # Use distillation loss (i.e., soft targets) for replayed data? (and set temperature)
     if isinstance(model, ContinualLearner) and hasattr(args, 'replay') and not args.replay=="none":
         model.replay_targets = "soft" if args.distill else "hard"
+        # even it temperature is .2 by default, will not use distill loss on ER if distill = "hard"
         model.KD_temp = args.temp
 
     # If needed, specify separate model for the generator
