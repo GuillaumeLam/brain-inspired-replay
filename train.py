@@ -115,8 +115,6 @@ def train_cl(model, train_datasets, replay_mode="none", scenario="task", rnt=Non
 
         # For ER (added)
         if replay_mode=="exemplars":
-            #TODO: decide if keep I this line I added for ER...
-            training_dataset = train_dataset
             iters_left_previous = iters_left
             if scenario=="task":
                 up_to_task = task if replay_mode=="offline" else task-1
@@ -191,7 +189,9 @@ def train_cl(model, train_datasets, replay_mode="none", scenario="task", rnt=Non
                         iters_left_previous[task_id] -= 1
                         if iters_left_previous[task_id]==0:
                             data_loader_previous[task_id] = iter(utils.get_data_loader(
-                                train_datasets[task_id], batch_size_to_use_ER, cuda=cuda, drop_last=True
+                                # TODO determine if bug?
+                                #train_datasets[task_id], batch_size_to_use_ER, cuda=cuda, drop_last=True
+                                previous_datasets[task_id], batch_size_to_use_ER, cuda=cuda, drop_last=True
                             ))
                             iters_left_previous[task_id] = len(data_loader_previous[task_id])
                 else:
