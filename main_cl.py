@@ -19,6 +19,7 @@ import eval.fid as fid
 from train import train_cl
 from param_stamp import get_param_stamp
 from models.cl.continual_learner import ContinualLearner
+from models.cl.exemplars import ExemplarHandler
 
 
 ## Function for specifying input-options and organizing / checking them
