@@ -6,10 +6,10 @@ from models.conv.nets import ConvLayers
 from models.fc.layers import fc_layer
 from models.fc.nets import MLP
 from models.cl.continual_learner import ContinualLearner
+from models.cl.exemplars import ExemplarHandler
 
-
-class Classifier(ContinualLearner):
-    '''Model for encoding (i.e., feature extraction) and classifying images, enriched as "ContinualLearner"--object.'''
+class Classifier(ContinualLearner, ExemplarHandler):
+    '''Model for encoding (i.e., feature extraction) and classifying images, enriched as "ContinualLearner"--object and ExemplarHandler-object.'''
 
     def __init__(self, image_size, image_channels, classes,
                  # -conv-layers
@@ -265,4 +265,3 @@ class Classifier(ContinualLearner):
             'ewc': ewc_loss.item(), 'si_loss': surrogate_loss.item(),
             'precision': precision if precision is not None else 0.,
         }
-

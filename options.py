@@ -181,7 +181,8 @@ def add_VAE_options(parser, only_MNIST=False,  **kwargs):
 def add_replay_options(parser, only_MNIST=False, compare_code="none", **kwargs):
     replay = parser.add_argument_group('Replay Parameters')
     if compare_code in ("none"):
-        replay_choices = ['offline', 'generative', 'none', 'current']
+        # msl: added 'episodic' option so replayed examples are stored from previous tasks
+        replay_choices = ['offline', 'generative', 'none', 'current', 'exemplars']
         replay.add_argument('--replay', type=str, default='none', choices=replay_choices)
     if compare_code not in ("all", "hyper", "bir"):
         replay.add_argument('--distill', action='store_true', help="use distillation for replay")
@@ -202,6 +203,21 @@ def add_replay_options(parser, only_MNIST=False, compare_code="none", **kwargs):
     # -add VAE-specific parameters
     if compare_code in ("none"):
         parser = add_VAE_options(parser, only_MNIST=only_MNIST)
+    return parser
+
+
+# msl: added input arguments specific to episodic replay
+def add_episodic_replay_options(parser, **kwargs):
+    # arguments to specify episodic replay parameters
+    ER = parser.add_argument_group('Episodic Replay Parameters')
+    # method by which exemplars are sampled from previous tasks (just random for now, can add techniques)
+    sampling_choices = ['random', 'herding']
+    ER.add_argument('--sampling', type=str, default='random', choices=sampling_choices)
+    ER.add_argument('--budget', type=int, default=1000, dest="budget", help="how many samples can be stored?")
+    ER.add_argument('--norm-exemplars', action='store_true', help="normalize features/averages of exemplars")
+    # msl: placeholder arguments, depending on how we implement distortion on stored exemplars (100% = no distortion)
+    ER.add_argument('--down-sampling', type=int, default=100, help="percent size of original image")
+    ER.add_argument('--noise', type=int, default=0, help="quantity of noise injected into image")
     return parser
 
 
