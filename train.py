@@ -6,6 +6,7 @@ import copy
 import utils
 from models.cl.continual_learner import ContinualLearner
 from data.manipulate import SubDataset, ExemplarDataset
+from data.distortion import distortion, spatter, stripe, inverse
 
 
 def train(model, train_loader, iters, loss_cbs=list(), eval_cbs=list(), save_every=None, m_dir="./store/models",
@@ -462,8 +463,14 @@ def train_cl(model, train_datasets, replay_mode="none", scenario="task", rnt=Non
                         ExemplarDataset(
                             model.exemplar_sets[
                             (classes_per_task * task_id):(classes_per_task * (task_id + 1))],
-                            target_transform=lambda y, x=classes_per_task * task_id: y + x)
+                            target_transform=lambda y: gaussian_blur(y))
                     )
+                    # previous_datasets.append(
+                    #     ExemplarDataset(
+                    #         model.exemplar_sets[
+                    #         (classes_per_task * task_id):(classes_per_task * (task_id + 1))],
+                    #         target_transform=distortion(args))
+                    # )
             else:
                 target_transform = (lambda y, x=classes_per_task: y % x) if scenario == "domain" else None
                 previous_datasets = [
