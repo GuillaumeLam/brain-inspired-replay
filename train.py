@@ -8,6 +8,8 @@ from models.cl.continual_learner import ContinualLearner
 from data.manipulate import SubDataset, ExemplarDataset
 from data.distortion import distortion, spatter, stripe, inverse
 
+from MNIST_Distortion import *
+
 
 def train(model, train_loader, iters, loss_cbs=list(), eval_cbs=list(), save_every=None, m_dir="./store/models",
           args=None):
@@ -463,7 +465,7 @@ def train_cl(model, train_datasets, replay_mode="none", scenario="task", rnt=Non
                         ExemplarDataset(
                             model.exemplar_sets[
                             (classes_per_task * task_id):(classes_per_task * (task_id + 1))],
-                            target_transform=lambda y: gaussian_blur(y))
+                            target_transform=lambda y: fine_distortions(y))
                     )
                     # previous_datasets.append(
                     #     ExemplarDataset(
