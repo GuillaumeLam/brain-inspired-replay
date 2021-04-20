@@ -24,8 +24,8 @@ def gaussian_blur(x):
 
 
 def quantize(x):
-    strength=4
-    c = [5, 4, 3, 2, 1][strength-1]
+    q = 4
+    c = [5, 4, 3, 2, 1][q-1]
 
     x = np.array(x).astype(np.float32)
     x *= (2 ** c - 1) / 255.
@@ -35,9 +35,9 @@ def quantize(x):
     return x
 
 
-def inverse_2(x):
-    strength=4
-    c = [5, 4, 3, 2, 1][strength-1]
+def speckle_noise_2(x):
+    s = 4
+    c = [5, 4, 3, 2, 1][s - 1]
 
     x = np.array(x).astype(np.float32)
     x *= (3 ** c - 1) / 255.
@@ -47,18 +47,42 @@ def inverse_2(x):
     return x
 
 
-def gaussian_blur_2(x):
-    strength=3
-    c = [1, 2, 3, 4, 6][strength - 1]
+def gaussian_noise_2(x):
+    g_b = 3
+    c = [1, 2, 3, 4, 6][g_b - 1]
 
     x = gaussian(np.array(x) / 255., sigma=c, multichannel=True)
     x = np.clip(x, 0, 1) * 255
-    return x.astype(np.float32)
+#     return x.astype(np.float32)
+
+    return x
+
+
+def shot(x):
+    c = [5, 4, 3, 2, 1][2]
+
+    x = np.array(x).astype(np.float32)
+    x *= (2 ** c - 1) / 255.
+    x = x.round()
+    x *= 255. / (2 ** c - 1)
+
+    return x
+
+
+def shot_noise_2(x):
+    c = [4, 3, 2, 1, 1][2]
+
+    x = np.array(x).astype(np.float32)
+    x *= (2 ** c - 1) / 255.
+    x = x.round()
+    x *= 255. / (2 ** c - 1)
+
+    return x
 
 
 def brightness(x):
-    strength=5
-    c = [.1, .2, .3, .4, .5][strength - 1]
+    b = 5
+    c = [.1, .2, .3, .4, .5][b - 1]
 
     x = np.array(x) / 255.
     x = sk.color.gray2rgb(x)
@@ -67,16 +91,22 @@ def brightness(x):
 #     x[:, :, 2] = np.clip(x[:, :, 2] + c, 0, 1)
     x = sk.color.hsv2rgb(x)
     x = sk.color.rgb2gray(x)
-
     x = np.clip(x, 0, 1) * 255
+    
     return x.astype(np.float32)
 
 
-###########################################
+def inverse(x):
+    x = np.array(x).astype(np.float32)
+    a = 255. - x
+    x = a
+    
+    return x
+
+###############################################################################################################
 
 def gaussian_noise(x):
-    severity=5
- 
+    severity=5 
     c = [.08, .12, 0.18, 0.26, 0.38][severity - 1]
 
     x = np.array(x) / 255.
@@ -87,7 +117,6 @@ def gaussian_noise(x):
 
 def shot_noise(x):
     severity=5
-
     c = [60, 25, 12, 5, 3][severity - 1]
 
     x = np.array(x) / 255.
@@ -97,7 +126,6 @@ def shot_noise(x):
 
 def speckle_noise(x):
     severity=5
-
     c = [.15, .2, 0.35, 0.45, 0.6][severity - 1]
     
     x = np.array(x) / 255.
@@ -107,8 +135,7 @@ def speckle_noise(x):
 
 
 def spatter(x):
-    increase=4
-
+    increase = 2
     c = [(0.65, 0.3, 4, 0.69, 0.6, 0),
          (0.65, 0.3, 3, 0.68, 0.6, 0),
          (0.65, 0.3, 2, 0.68, 0.5, 0),
@@ -134,9 +161,8 @@ def spatter(x):
 
 
 def contrast(x):
-    severity=4
- 
-    c = [0.4, .3, .2, .1, .05][severity - 1]
+    increase = 4 
+    c = [0.4, .3, .2, .1, .05][increase - 1]
 
     x = np.array(x) / 255.
     means = np.mean(x, axis=(0, 1), keepdims=True)
@@ -145,9 +171,8 @@ def contrast(x):
 
 
 def brightness(x):
-    severity=5
-
-    c = [.1, .2, .3, .4, .5][severity - 1]
+    increase = 5
+    c = [.1, .2, .3, .4, .5][increase - 1]
 
     x = np.array(x) / 255.
     x = sk.color.gray2rgb(x)
@@ -161,9 +186,8 @@ def brightness(x):
 
 
 def saturate(x):
-    severity=5
-
-    c = [(0.3, 0), (0.1, 0), (2, 0), (5, 0.1), (20, 0.2)][severity - 1]
+    increase = 5
+    c = [(0.3, 0), (0.1, 0), (2, 0), (5, 0.1), (20, 0.2)][increase - 1]
 
     x = np.array(x) / 255.
     x = sk.color.gray2rgb(x)
@@ -193,31 +217,26 @@ def stripe(x):
 def distortions(x):
 
     g = [1, 2, 3, 4, 6][1]
-
     x_g = gaussian(np.array(x) / 255., sigma=g, multichannel=True)
     x_g = np.clip(x_g, 0, 1) * 255
 
     q = [5, 4, 3, 2, 1][3]
-
     x_q = np.array(x_g).astype(np.float32)
     x_q *= (2 ** q - 1) / 255.
     x_q = x_q.round()
     x_q *= 255. / (2 ** q - 1)
 
     i = [5, 4, 3, 2, 1][3]
-
     x_i = np.array(x_q).astype(np.float32)
     x_i *= (3 ** i - 1) / 255.
     x_i = x_i.round()
     x_i *= 255. / (2 ** i - 1)
 
     g_c = [1, 2, 3, 4, 6][2]
-
     x_g_c = gaussian(np.array(x_i) / 255., sigma=g_c, multichannel=True)
     x_g_c = np.clip(x_g_c, 0, 1) * 255
 
     i_2 = [5, 4, 3, 2, 1][2]
-
     x_i_2 = np.array(x_g_c).astype(np.float32)
     x_i_2 *= (2 ** i_2 - 1) / 255.
     x_i_2 = x_i_2.round()
@@ -229,57 +248,20 @@ def distortions(x):
 
 def hyper_distortions(x):
 
-    x = quantize(x)
     x = gaussian_blur(x)
-    x = inverse_2(x)
-    x = gaussian_blur_2(x)
+    x = quantize(x)
+    x = speckle_noise_2(x)
+    x = gaussian_noise_2(x)
+    x = shot(x)
              
     return x
 
 
 def fine_distortions(x):
 
-    x = inverse_2(x)
-    x = quantize(x)
+    x = shot_noise_2(x)
     x = gaussian_blur(x)     
     
     return x
-
-######################################################################################################
-
-def show(x):
-    plt.imshow(x, cmap='gray', vmin=0, vmax=255)
-    plt.axis("off")
-    plt.show()
-
-    
-def round_and_astype(x):
-    return np.round(x).astype(np.uint8)
-
-
-def apply(corruption):
-    train_mnist = torchvision.datasets.MNIST("../data/", train=True, download=True)
-    test_mnist = torchvision.datasets.MNIST("../data/", train=False, download=True)
-    IMAGES = [test_mnist[i][0] for i in range(1)]
-    LABELS = [test_mnist[i][1] for i in range(1)]
-    for im, l in zip(IMAGES, LABELS):
-        x = np.array(corruption(im))
-        show(round_and_astype(x))
-
-        
-def apply_random_distortion(x):
-    dist_list = [gaussian_noise,shot_noise, impulse_noise,speckle_noise,gaussian_blur,
-                 spatter,contrast, brightness, saturate, quantize, inverse,stripe]
-    r_d = random.choice(dist_list)
-    x = r_d(x)
-    return x
-
-
-    
-    
-
-
-
-
 
 
