@@ -216,6 +216,9 @@ def add_episodic_replay_options(parser, **kwargs):
     ER.add_argument('--budget', type=int, default=1000, dest="budget", help="how many samples can be stored?")
     ER.add_argument('--norm-exemplars', action='store_true', help="normalize features/averages of exemplars")
     # msl: placeholder arguments, depending on how we implement distortion on stored exemplars (100% = no distortion)
+    distortion_choices = [None, 'gaussian_blur', 'speckle_noise', 'shot_noise', 'gaussian_noise', 'hyper', 'fine']
+    ER.add_argument('--distortion', type=str, default=None, choices=distortion_choices)
+    ER.add_argument('--severity', type=int, default=1, choices=range(1,11))
     ER.add_argument('--down-sampling', type=int, default=100, help="percent size of original image")
     ER.add_argument('--noise', type=int, default=0, help="quantity of noise injected into image")
     return parser
