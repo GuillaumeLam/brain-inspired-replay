@@ -16,9 +16,9 @@ def distortion(args):
     elif args.distortions is 'gaussian_noise':
         return lambda img: gaussian_noise(img, args.severity)
     elif args.distortions is 'hyper':
-        return lambda img: hyper_distortions(img, args.severity)
+        return lambda img: hyper_distortions(img)
     elif args.distortions is 'fine':
-        return lambda img: fine_distortions(img, args.severity)
+        return lambda img: fine_distortions(img)
 
 def gaussian_blur(x, severity=2):
     c = [1, 2, 3, 4, 6][severity - 1]
