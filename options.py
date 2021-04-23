@@ -219,8 +219,6 @@ def add_episodic_replay_options(parser, **kwargs):
     distortion_choices = [None, 'gaussian_blur', 'speckle_noise', 'shot_noise', 'gaussian_noise', 'hyper', 'fine']
     ER.add_argument('--distortion', type=str, default=None, choices=distortion_choices)
     ER.add_argument('--severity', type=int, default=1, choices=range(1,11))
-    ER.add_argument('--down-sampling', type=int, default=100, help="percent size of original image")
-    ER.add_argument('--noise', type=int, default=0, help="quantity of noise injected into image")
     return parser
 
 

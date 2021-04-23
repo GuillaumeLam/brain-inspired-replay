@@ -55,9 +55,10 @@ class ExemplarDataset(Dataset):
     '''Create dataset from list of <np.arrays> with shape (N, C, H, W) (i.e., with N images each).
     The images at the i-th entry of [exemplar_sets] belong to class [i], unless a [target_transform] is specified'''
 
-    def __init__(self, exemplar_sets, target_transform=None):
+    def __init__(self, exemplar_sets, transform=None, target_transform=None):
         super().__init__()
         self.exemplar_sets = exemplar_sets
+        self.transform = transform
         self.target_transform = target_transform
 
     def __len__(self):
@@ -76,7 +77,9 @@ class ExemplarDataset(Dataset):
                 break
             else:
                 total += exemplars_in_this_class
-        image = torch.from_numpy(self.exemplar_sets[class_id][exemplar_id])
+        image_np = self.exemplar_sets[class_id][exemplar_id]
+        image_np_transf = image_np if self.transform is None else self.transform(image_np)
+        image = torch.from_numpy(image_np_transf)
         return (image, class_id_to_return)
 
 

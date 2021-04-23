@@ -95,6 +95,12 @@ def train_cl(model, train_datasets, replay_mode="none", scenario="task", rnt=Non
     Exact = Generative = Current = Offline_TaskIL = False
     previous_model = None
 
+    if replay_mode=="exemplars":
+        if args.distortion is not None:
+            er_distortion = distortion(args)
+        else:
+            er_distortion = None
+
     # Register starting param-values (needed for "intelligent synapses").
     if isinstance(model, ContinualLearner) and model.si_c>0:
         for n, p in model.named_parameters():
@@ -465,9 +471,10 @@ def train_cl(model, train_datasets, replay_mode="none", scenario="task", rnt=Non
                         ExemplarDataset(
                             model.exemplar_sets[
                             (classes_per_task * task_id):(classes_per_task * (task_id + 1))],
-                            target_transform=distortion(args))
+                            transform=er_distortion,
+                            target_transform=lambda y, x=classes_per_task * task_id: y + x)
                     )
             else:
                 target_transform = (lambda y, x=classes_per_task: y % x) if scenario == "domain" else None
                 previous_datasets = [
-                    ExemplarDataset(model.exemplar_sets, target_transform=target_transform)]
+                    ExemplarDataset(model.exemplar_sets, transform=er_distortion, target_transform=target_transform)]
