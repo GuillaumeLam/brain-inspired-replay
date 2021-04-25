@@ -7,17 +7,17 @@ def distortion(args):
 
     if args.distortion is None:
         return lambda img, x=classes_per_task * task_id: img + x
-    elif args.distortions is 'gaussian_blur':
+    elif args.distortion is 'gaussian_blur':
         return lambda img: gaussian_blur(img, args.severity)
-    elif args.distortions is 'speckle_noise':
+    elif args.distortion is 'speckle_noise':
         return lambda img: speckle_noise(img, args.severity)
-    elif args.distortions is 'shot_noise':
+    elif args.distortion is 'shot_noise':
         return lambda img: shot_noise(img, args.severity)
-    elif args.distortions is 'gaussian_noise':
+    elif args.distortion is 'gaussian_noise':
         return lambda img: gaussian_noise(img, args.severity)
-    elif args.distortions is 'hyper':
+    elif args.distortion is 'hyper':
         return lambda img: hyper_distortions(img)
-    elif args.distortions is 'fine':
+    elif args.distortion is 'fine':
         return lambda img: fine_distortions(img)
 
 def gaussian_blur(x, severity=2):
