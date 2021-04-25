@@ -8,8 +8,6 @@ from models.cl.continual_learner import ContinualLearner
 from data.manipulate import SubDataset, ExemplarDataset
 from data.distortion import distortion
 
-from MNIST_Distortion import *
-
 
 def train(model, train_loader, iters, loss_cbs=list(), eval_cbs=list(), save_every=None, m_dir="./store/models",
           args=None):
