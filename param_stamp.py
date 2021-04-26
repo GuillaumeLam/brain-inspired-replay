@@ -97,13 +97,13 @@ def get_param_stamp(args, model_name, verbose=True, replay=False, replay_model_n
 
     # -for replay
     if replay:
-        replay_stamp = "{H}{rep}{brain}{zdim}{bat}{distil}{model}{gi}{samp}{budg}".format(
+        replay_stamp = "{H}{rep}{brain}{zdim}{bat}{distil}{model}{gi}{samp}{budg}{disto}{s}".format(
             H="" if not args.replay=="generative" else (
                 "H" if (checkattr(args, "hidden") and hasattr(args, 'depth') and args.depth>0) else ""
             ),
             rep="gen" if args.replay=="generative" else "-{}".format(args.replay),
             brain="-bi" if checkattr(args, 'brain_inspired') else "",
-            zdim="-z{}".format(args.g_z_dim) if args.replay=="generative" else "",
+            zdim="-z{}".format(args.z_dim) if args.replay=="generative" else "",
             bat="" if (
                     (not hasattr(args, 'batch_replay')) or (args.batch_replay is None) or args.batch_replay==args.batch
             ) else "-br{}".format(args.batch_replay),
@@ -114,6 +114,8 @@ def get_param_stamp(args, model_name, verbose=True, replay=False, replay_model_n
             ) else "",
             samp="-{}".format(args.sampling) if args.replay=="exemplars" else "",
             budg="-bud{}".format(args.budget) if args.replay=="exemplars" else "",
+            disto="" if args.distortion is None else "-{}".format(args.distortion),
+            s="" if args.distortion is None else "-s{}".format(args.severity),
         )
         if verbose:
             print(" --> replay:        " + replay_stamp)
