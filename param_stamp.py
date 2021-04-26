@@ -103,7 +103,7 @@ def get_param_stamp(args, model_name, verbose=True, replay=False, replay_model_n
             ),
             rep="gen" if args.replay=="generative" else "-{}".format(args.replay),
             brain="-bi" if checkattr(args, 'brain_inspired') else "",
-            zdim="-z{}".format(args.g_z_dim) if args.replay=="generative" else "",
+            zdim="-z{}".format(args.z_dim) if args.replay=="generative" else "",
             bat="" if (
                     (not hasattr(args, 'batch_replay')) or (args.batch_replay is None) or args.batch_replay==args.batch
             ) else "-br{}".format(args.batch_replay),
