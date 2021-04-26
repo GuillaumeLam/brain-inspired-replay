@@ -98,6 +98,8 @@ def train_cl(model, train_datasets, replay_mode="none", scenario="task", rnt=Non
             er_distortion = distortion(args)
         else:
             er_distortion = None
+        print("Distortion": args.distortion, "Severity": args.severity)
+        print(er_distortion)
 
     # Register starting param-values (needed for "intelligent synapses").
     if isinstance(model, ContinualLearner) and model.si_c>0:
