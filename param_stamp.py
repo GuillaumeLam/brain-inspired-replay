@@ -115,7 +115,7 @@ def get_param_stamp(args, model_name, verbose=True, replay=False, replay_model_n
             samp="-{}".format(args.sampling) if args.replay=="exemplars" else "",
             budg="-bud{}".format(args.budget) if args.replay=="exemplars" else "",
             disto="" if args.distortion is None else "-{}".format(args.distortion),
-            s="" if args.distortion is None else "-s{}".format(args.severity),
+            s="" if (args.severity==1) else "-s{}".format(args.severity),
         )
         if verbose:
             print(" --> replay:        " + replay_stamp)
