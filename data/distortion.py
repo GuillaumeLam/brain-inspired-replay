@@ -6,18 +6,18 @@ from skimage.filters import gaussian
 
 def distortion(args):
 
-    if args.distortion is 'gaussian_blur':
-        return lambda img: gaussian_blur(img, args.severity, args.experiment is 'CIFAR100')
-    elif args.distortion is 'speckle_noise':
-        return lambda img: speckle_noise(img, args.severity, args.experiment is 'CIFAR100')
-    elif args.distortion is 'shot_noise':
-        return lambda img: shot_noise(img, args.severity, args.experiment is 'CIFAR100')
-    elif args.distortion is 'hyper':
-        return lambda img: hyper_distortions(img, args.experiment is 'CIFAR100')
-    elif args.distortion is 'med':
-        return lambda img: medium_distortions(img, args.experiment is 'CIFAR100')
-    elif args.distortion is 'fine':
-        return lambda img: fine_distortions(img, args.experiment is 'CIFAR100')
+    if args.distortion=='gaussian_blur':
+        return lambda img: gaussian_blur(img, args.severity, args.experiment=='CIFAR100')
+    elif args.distortion=='speckle_noise':
+        return lambda img: speckle_noise(img, args.severity, args.experiment=='CIFAR100')
+    elif args.distortion=='shot_noise':
+        return lambda img: shot_noise(img, args.severity, args.experiment=='CIFAR100')
+    elif args.distortion=='hyper':
+        return lambda img: hyper_distortions(img, args.experiment=='CIFAR100')
+    elif args.distortion=='med':
+        return lambda img: medium_distortions(img, args.experiment=='CIFAR100')
+    elif args.distortion=='fine':
+        return lambda img: fine_distortions(img, args.experiment=='CIFAR100')
 
 
 def gaussian_blur(img, severity=2, cifar=False):
