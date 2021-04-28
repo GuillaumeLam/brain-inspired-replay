@@ -219,6 +219,7 @@ def add_episodic_replay_options(parser, **kwargs):
     distortion_choices = [None, 'gaussian_blur', 'shot_noise', 'hyper', 'med', 'fine']
     ER.add_argument('--distortion', type=str, default=None, choices=distortion_choices)
     ER.add_argument('--severity', type=int, default=1, choices=range(1,6))
+    ER.add_argument('--hello', action='store_true', help="not to mix up last output")
     return parser
 
 
