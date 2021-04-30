@@ -12,6 +12,8 @@ Note: The master branch contains the origin repo's code while the dev branch con
 
 Our work investigated the use of episodic and generative replay as methods to prevent catastrophic forgetting during challenging continual learning (CL) tasks and scenarios. We contrasted the efficacy of episodic replay (ER) and brain-inspired replay (BI-R), a technique that adapts standard generative replay based on neuroscience principles and scales well to long task sequences and complex stimuli. We used permuted MNIST and split CIFAR in domain-inference and task-inference learning scenarios, respectively. For each type of replay, we also manipulated the quantity and quality of replayed exemplars. Our goal was to contrast the effectiveness of ER versus BI-R, and to explore the minimal amount of replay required by each approach to maintain performance as more tasks are learned. We observed that BI-R performs closely to ER without needing to store data from previous tasks, that both approaches prevent forgetting with very few replayed exemplars per iteration, and that BI-R is surprisingly robust to poor generated exemplar quality.
 
+Link to final report: https://www.overleaf.com/read/hntdgkdhsnqm
+
 The following text is adapted from the GMvandeVen/continual-learning Repository's ReadMe
 Source: https://github.com/GMvandeVen/continual-learning
 
