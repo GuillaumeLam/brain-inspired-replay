@@ -1,14 +1,14 @@
 # IFT6760B-Continual Learing, UdeM, Winter 2021
 
-Contrasting episodic and generative replay as a function of exemplar quality in continual learning
+Project: Contrasting episodic and generative replay as a function of exemplar quality in continual learning
 
 Guillaume Lam, guillaume.lam@umontreal.ca \
 Shima Rastegarnia, shima.rastegarnia@umontreal.ca \
-Marie St-Laurent, marie.st-laurent@umontreal.ca 
+Marie St-Laurent, marie.st-laurent@umontreal.ca
 
 Note: The master branch contains the origin repo's code while the dev branch contains all additional code for our final project.
 
-## Abstract
+## Summary
 
 Our work investigated the use of episodic and generative replay as methods to prevent catastrophic forgetting during challenging continual learning (CL) tasks and scenarios. We contrasted the efficacy of episodic replay (ER) and brain-inspired replay (BI-R), a technique that adapts standard generative replay based on neuroscience principles and scales well to long task sequences and complex stimuli. We used permuted MNIST and split CIFAR in domain-inference and task-inference learning scenarios, respectively. For each type of replay, we also manipulated the quantity and quality of replayed exemplars. Our goal was to contrast the effectiveness of ER versus BI-R, and to explore the minimal amount of replay required by each approach to maintain performance as more tasks are learned. We observed that BI-R performs closely to ER without needing to store data from previous tasks, that both approaches prevent forgetting with very few replayed exemplars per iteration, and that BI-R is surprisingly robust to poor generated exemplar quality.
 
@@ -18,7 +18,7 @@ Source: https://github.com/GMvandeVen/continual-learning
 ---
 
 # Brain-Inspired Replay
-A PyTorch implementation of the continual learning experiments with deep neural networks described in the 
+A PyTorch implementation of the continual learning experiments with deep neural networks described in the
 following paper:
 - Brain-inspired replay for continual learning with artificial neural networks: https://www.nature.com/articles/s41467-020-17866-2
 
