@@ -66,3 +66,4 @@ Permuted-MNIST | Bi-R | Full batch size and 50 VAE units | `./main_cl.py --exper
 Permuted-MNIST | ER | Half batch size and ~10 ex per class x task | `./main_cl.py --experiment=permMNIST --scenario=domain --tasks=50 --replay=exemplars --sampling=random --batch-replay=128  --budget=5000 --no-save --pdf`
 CIFAR100 | Bi-R | Half batch size and 100 VAE units(default) | `./main_cl.py --experiment=CIFAR100 --scenario=class --replay=generative --batch-replay=128 --brain-inspired --no-save --pdf`
 CIFAR100 | ER | Half batch size and ~5 ex per class x task | `./main_cl.py --experiment=CIFAR100 --scenario=class --freeze-convE --pre-convE --replay=exemplars --sampling=random --batch-replay=8  --budget=450 --no-save --pdf`
+CIFAR100 | ER | Medium distortion for replayed examplar | `./main_cl.py --experiment=CIFAR100 --scenario=class --freeze-convE --pre-convE --replay=exemplars --sampling=random --budget=1170 --distortion=med --no-save --pdf`
