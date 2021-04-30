@@ -97,7 +97,7 @@ def get_param_stamp(args, model_name, verbose=True, replay=False, replay_model_n
 
     # -for replay
     if replay:
-        replay_stamp = "{H}{rep}{brain}{zdim}{bat}{distil}{model}{gi}{samp}{budg}".format(
+        replay_stamp = "{H}{rep}{brain}{zdim}{bat}{distil}{model}{gi}{samp}{budg}{disto}{s}{hello}".format(
             H="" if not args.replay=="generative" else (
                 "H" if (checkattr(args, "hidden") and hasattr(args, 'depth') and args.depth>0) else ""
             ),
@@ -114,6 +114,9 @@ def get_param_stamp(args, model_name, verbose=True, replay=False, replay_model_n
             ) else "",
             samp="-{}".format(args.sampling) if args.replay=="exemplars" else "",
             budg="-bud{}".format(args.budget) if args.replay=="exemplars" else "",
+            disto="" if args.distortion is None else "-{}".format(args.distortion),
+            s="" if (args.severity==1) else "-s{}".format(args.severity),
+            hello="hello" if args.hello else "",
         )
         if verbose:
             print(" --> replay:        " + replay_stamp)
