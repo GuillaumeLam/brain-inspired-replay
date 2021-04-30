@@ -479,7 +479,7 @@ class AutoEncoder(ContinualLearner):
             else:
                 a_logsum = torch.log(torch.clamp(torch.sum(a_exp, dim=1), min=1e-40))  # -> sum over modes: [batch_size]
             log_p_z = a_logsum + a_max  # [batch_size]
-            
+
         return log_p_z
 
 
