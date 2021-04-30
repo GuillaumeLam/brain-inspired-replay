@@ -6,8 +6,7 @@ Guillaume Lam, guillaume.lam@umontreal.ca \
 Shima Rastegarnia, shima.rastegarnia@umontreal.ca \
 Marie St-Laurent, marie.st-laurent@umontreal.ca
 
-Note: The master branch contains the origin repo's code while the dev branch contains all additional code for our final project, including the episodic replay condition and the image distortion pipeline. \
-The project report can be found here: https://www.overleaf.com/read/hntdgkdhsnqm
+Note: The master branch contains the origin repo's code while the dev branch contains all additional code for our final project, including the episodic replay condition and the image distortion pipeline. 
 
 ## Summary
 
